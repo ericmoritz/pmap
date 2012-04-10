@@ -3,8 +3,11 @@ from Queue import Queue, Empty
 
 
 def pmap_thread_target(result_queue, function, index, value):
-    result = function(value)
-    result_queue.put((index, result))
+    try:
+        result = function(value)
+        result_queue.put((index, result))
+    except Exception, e:
+        result_queue.put(("error", e))
     
 
 def pmap(function, sequence):
@@ -25,6 +28,10 @@ def pmap(function, sequence):
     # Collect results
     while result_counter < size:
         index, result = result_queue.get()
+
+        if index == "error":
+            raise result
+
         results[index] = result
         result_counter += 1
 
