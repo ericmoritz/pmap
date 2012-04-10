@@ -7,8 +7,11 @@ def pmap_thread_target(result_queue, function, index, value):
         result = function(value)
         result_queue.put((index, result))
     except Exception, e:
+        # send the error to the result queue so that
+        # the main thread will know an error occurred
         result_queue.put(("error", e))
-    
+        # Reraise for exception reporting
+        raise
 
 def pmap(function, sequence):
     results = []
@@ -29,8 +32,10 @@ def pmap(function, sequence):
     while result_counter < size:
         index, result = result_queue.get()
 
+        # If an error occurred in a thread, crash the main thread
         if index == "error":
-            raise result
+            # crash the entire thing
+            raise Exception(u"An error occurred in the map function: %s" % (unicode(result)))
 
         results[index] = result
         result_counter += 1
