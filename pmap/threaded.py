@@ -1,6 +1,6 @@
 from threading import Thread
 from Queue import Queue, Empty
-
+import sys
 
 def pmap_thread_target(result_queue, function, index, value):
     try:
@@ -9,7 +9,7 @@ def pmap_thread_target(result_queue, function, index, value):
     except Exception, e:
         # send the error to the result queue so that
         # the main thread will know an error occurred
-        result_queue.put(("error", e))
+        result_queue.put(("error", sys.exc_info()))
         # Reraise for exception reporting
         raise
 
@@ -34,8 +34,7 @@ def pmap(function, sequence):
 
         # If an error occurred in a thread, crash the main thread
         if index == "error":
-            # crash the entire thing
-            raise Exception(u"An error occurred in the map function: %s" % (unicode(result)))
+            raise result[1], None, result[2]
 
         results[index] = result
         result_counter += 1
