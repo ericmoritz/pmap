@@ -5,6 +5,8 @@ A quick and dirty implementation of pmap for Python
 
 Wherever you use map, you can use pmap:
 
+
+    import urllib
     from pmap.threaded import pmap
     
     urls = ["http://www.google.com/",
